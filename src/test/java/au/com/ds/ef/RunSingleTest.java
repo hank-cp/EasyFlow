@@ -353,4 +353,32 @@ public class RunSingleTest {
         assertTrue(whenEventCalled[0]);
 
     }
+
+    @Test
+    public void testBuildMultipleFlowInstance() {
+        FlowBuilder<StatefulContext> builder =
+                from(START).transit(
+                        on(event_1).to(STATE_1).transit(
+                                on(event_3).to(START)
+                        ),
+                        on(event_2).to(STATE_2).transit(
+                                on(event_2).finish(STATE_3),
+                                on(event_1).finish(STATE_4)
+                        )
+                ).setExecutor(new SyncExecutor());
+
+        int[] counter = {0};
+        EasyFlow<StatefulContext> flow_1 = builder.build().whenEnter(STATE_1,
+                stateCtx -> counter[0]++);
+        EasyFlow<StatefulContext> flow_2 = builder.build();
+        StatefulContext stateCtx = new StatefulContext();
+        flow_1.start(stateCtx);
+        stateCtx.safeTrigger(event_1);
+        assertEquals(1, counter[0]); // flow_1's callback is fired
+
+        stateCtx.setState(START);
+        flow_2.start(stateCtx);
+        stateCtx.safeTrigger(event_1);
+        assertEquals(1, counter[0]); // flow_2's callback is fired
+    }
 }

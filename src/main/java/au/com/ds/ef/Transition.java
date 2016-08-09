@@ -1,14 +1,11 @@
 package au.com.ds.ef;
 
-import java.util.*;
-
 /**
  * User: andrey
  * Date: 6/12/2013
  * Time: 2:21 PM
  */
 public final class Transition {
-    private static ThreadLocal<List<Transition>> transitions = new ThreadLocal<List<Transition>>();
     private EventEnum event;
     private StateEnum stateFrom;
     private StateEnum stateTo;
@@ -32,16 +29,6 @@ public final class Transition {
         this.event = event;
         this.stateTo = stateTo;
         this.isFinal = isFinal;
-        register(this);
-    }
-
-    private static void register(Transition transition) {
-        List<Transition> list = transitions.get();
-        if (list == null) {
-            list = new ArrayList<Transition>();
-            transitions.set(list);
-        }
-        list.add(transition);
     }
 
     public EventEnum getEvent() {
@@ -99,11 +86,5 @@ public final class Transition {
         int result = event.hashCode();
         result = 31 * result + stateFrom.hashCode();
         return result;
-    }
-
-    protected static List<Transition> consumeTransitions() {
-        List<Transition> ts = transitions.get();
-        transitions.remove();
-        return ts;
     }
 }

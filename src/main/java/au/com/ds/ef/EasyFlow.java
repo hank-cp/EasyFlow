@@ -28,6 +28,7 @@ public class EasyFlow<C extends StatefulContext> {
         }
     }
 
+    private String name;
     private StateEnum startState;
     private TransitionCollection transitions;
 
@@ -40,10 +41,6 @@ public class EasyFlow<C extends StatefulContext> {
     protected EasyFlow(StateEnum startState) {
         this.startState = startState;
         this.handlers.setHandler(HandlerCollection.EventType.ERROR, null, null, new DefaultErrorHandler());
-    }
-
-    protected void processAllTransitions(boolean skipValidation) {
-        transitions = new TransitionCollection(Transition.consumeTransitions(), !skipValidation);
     }
 
     protected void setTransitions(Collection<Transition> collection, boolean skipValidation) {
