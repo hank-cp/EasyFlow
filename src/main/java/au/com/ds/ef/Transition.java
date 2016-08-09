@@ -1,5 +1,7 @@
 package au.com.ds.ef;
 
+import au.com.ds.ef.call.ConditionChecker;
+
 /**
  * User: andrey
  * Date: 6/12/2013
@@ -10,6 +12,7 @@ public final class Transition {
     private StateEnum stateFrom;
     private StateEnum stateTo;
     private boolean isFinal;
+    private ConditionChecker conditionChecker;
 
     public Transition(EventEnum event, StateEnum stateFrom, StateEnum stateTo) {
         this.event = event;
@@ -57,6 +60,15 @@ public final class Transition {
         }
 
         return this;
+    }
+
+    public <C extends StatefulContext> Transition onlyIf(ConditionChecker<C> checker) {
+        conditionChecker = checker;
+        return this;
+    }
+
+    protected boolean satisfyCondition(StatefulContext stateCtx) {
+        return conditionChecker == null || conditionChecker.check(stateCtx);
     }
 
     @Override

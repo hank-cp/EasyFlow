@@ -191,12 +191,17 @@ public class EasyFlow<C extends StatefulContext> {
                             log.info("when triggered %s in %s for %s <<<", event, stateFrom, context);
 
                         handlers.callOnEventTriggered(event, stateFrom, stateTo, context);
-                        context.setLastEvent(event);
 
-                        if (isTrace())
-                            log.info("when triggered %s in %s for %s >>>", event, stateFrom, context);
+                        if (transition.satisfyCondition(context)) {
+                            context.setLastEvent(event);
+                            if (isTrace())
+                                log.info("when triggered %s in %s for %s >>>", event, stateFrom, context);
+                            setCurrentState(stateTo, false, context);
 
-                        setCurrentState(stateTo, false, context);
+                        } else {
+                            if (isTrace())
+                                log.info("triggered %s in %s for %s unsatisfying >>>", event, stateFrom, context);
+                        }
                     } catch (Exception e) {
                         doOnError(new ExecutionError(stateFrom, event, e,
                             "Execution Error in [trigger]", context));

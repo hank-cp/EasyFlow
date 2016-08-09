@@ -381,4 +381,25 @@ public class RunSingleTest {
         stateCtx.safeTrigger(event_1);
         assertEquals(1, counter[0]); // flow_2's callback is fired
     }
+
+    @Test
+    public void testConditionChecker() {
+        EasyFlow<StatefulContext> flow =
+                from(START).transit(
+                        on(event_1).to(STATE_1).onlyIf(stateCtx -> false).transit(
+                                on(event_3).to(START)
+                        )
+                ).build();
+
+        boolean[] eventFired = {false};
+        flow.whenEnter(STATE_1, context -> eventFired[0] = true);
+
+        StatefulContext ctx = new StatefulContext();
+        flow
+                .executor(new SyncExecutor())
+                .trace()
+                .start(ctx);
+
+        assertFalse(eventFired[0]);
+    }
 }
